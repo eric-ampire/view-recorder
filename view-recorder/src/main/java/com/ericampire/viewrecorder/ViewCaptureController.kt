@@ -9,7 +9,11 @@ import dev.shreyaspatil.capturable.controller.CaptureController
 import dev.shreyaspatil.capturable.controller.rememberCaptureController
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.jcodec.api.android.AndroidSequenceEncoder
@@ -22,14 +26,13 @@ import java.util.UUID
 
 class ViewCaptureController internal constructor(
   val captureController: CaptureController,
-  private val timeMillis: Long,
 ) {
 
   private lateinit var onCaptureComplete: () -> Unit
 
   suspend fun capture() {
     try {
-      withTimeout(timeMillis) {
+      withTimeout(2000) {
         while (true) {
           captureController.capture()
           delay(60)
@@ -53,7 +56,7 @@ class ViewCaptureController internal constructor(
       try {
         out = NIOUtils.writableFileChannel(outputFile.path)
         val encoder = AndroidSequenceEncoder(out, Rational.R(60, 5))
-        images.forEachIndexed { _, imageBitmap ->
+        images.map { imageBitmap ->
           encoder.encodeImage(imageBitmap)
         }
         encoder.finish()
@@ -73,9 +76,9 @@ class ViewCaptureController internal constructor(
 }
 
 @Composable
-fun rememberViewCaptureController(timeMillis: Long): ViewCaptureController {
+fun rememberViewCaptureController(): ViewCaptureController {
   val captureController = rememberCaptureController()
   return remember {
-    ViewCaptureController(captureController, timeMillis)
+    ViewCaptureController(captureController)
   }
 }

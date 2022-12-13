@@ -19,6 +19,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -58,17 +59,14 @@ object ShareUtil {
 
 class MainActivity : ComponentActivity() {
 
-
   @RequiresApi(Build.VERSION_CODES.R)
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContent {
       ViewRecorderTheme {
-        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-
-          val controller = rememberViewCaptureController(timeMillis = 3000)
+        Surface(modifier = Modifier.fillMaxSize().aspectRatio(0.58f), color = MaterialTheme.colorScheme.background) {
+          val controller = rememberViewCaptureController()
           val coroutineScope = rememberCoroutineScope()
-
           ViewRecorder(
             controller = controller,
             onRecorded = { uri, errors ->

@@ -2,18 +2,22 @@ package com.ericampire.viewrecorder
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Matrix
+import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.core.content.FileProvider
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.util.UUID
+
 
 fun File.getUriFromFile(context: Context): Uri {
   val authority = "${context.packageName}.provider"
@@ -27,28 +31,41 @@ private fun Int.isEven(): Boolean {
 private fun Int.getNextEven(): Int {
   return if (isEven()) this else this + 1
 }
-private fun Bitmap.getResizedBitmap(): Bitmap {
-  val width = this.width
-  val height = this.height
+private suspend fun ImageBitmap.getResizedBitmapAsync(): Deferred<Bitmap> {
+  val imageBitmap = this
+  return coroutineScope {
+    async(Dispatchers.IO) {
+      val width = imageBitmap.width
+      val height = imageBitmap.height
 
-  if (width.isEven() and height.isEven()) return this
+      if (width.isEven() and height.isEven()) return@async imageBitmap.asAndroidBitmap()
+      val newWidth = width.getNextEven()
+      val newHeight = height.getNextEven()
 
-  val newWidth = width.getNextEven()
-  val newHeight = height.getNextEven()
+      val rawBitmap = Bitmap.createScaledBitmap(
+        imageBitmap.asAndroidBitmap(), newWidth, newHeight, false
+      )
+      compress(rawBitmap)
+    }
+  }
+}
 
-  val scaleWidth = newWidth.toFloat() / width
-  val scaleHeight = newHeight.toFloat() / height
-
-  val matrix = Matrix()
-  matrix.postScale(scaleWidth, scaleHeight)
-  return Bitmap.createBitmap(this, 0, 0, width, height, matrix, false)
+fun compress(rawBitmap: Bitmap): Bitmap {
+  val options = BitmapFactory.Options().apply {
+    inSampleSize = 2
+  }
+  val stream = ByteArrayOutputStream()
+  rawBitmap.compress(Bitmap.CompressFormat.PNG, 50, stream)
+  val byteArray = stream.toByteArray()
+  return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size, options)
 }
 
 
-internal fun getImages(images: SnapshotStateList<ImageBitmap>): List<Bitmap> {
-  return images.map {
-    it.asAndroidBitmap().getResizedBitmap()
+internal suspend fun getImages(images: SnapshotStateList<ImageBitmap>): List<Bitmap> {
+  val tasks = images.map { image ->
+    image.getResizedBitmapAsync()
   }
+  return tasks.map { it.await() }
 }
 
 suspend fun Bitmap.getFile(context: Context): File {
