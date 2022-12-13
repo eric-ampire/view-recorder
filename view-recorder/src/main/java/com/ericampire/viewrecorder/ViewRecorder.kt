@@ -8,7 +8,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.LocalContext
 import dev.shreyaspatil.capturable.Capturable
 import kotlinx.coroutines.launch
@@ -35,10 +34,12 @@ fun ViewRecorder(
     val job = coroutineScope.launch {
       controller.onRecorded(
         context = context,
-        images = images.map { it.asAndroidBitmap() },
+        images = getImages(images),
         block = { file ->
-          val uri = file.getUriFromFile(context)
-          onRecorded(uri, errors)
+          val uri = file?.getUriFromFile(context)
+          if (uri != null) {
+            onRecorded(uri, errors)
+          }
         }
       )
     }

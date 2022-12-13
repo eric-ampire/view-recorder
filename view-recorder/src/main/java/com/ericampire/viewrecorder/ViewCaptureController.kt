@@ -45,7 +45,7 @@ class ViewCaptureController internal constructor(
   suspend fun onRecorded(
     context: Context,
     images: List<Bitmap>,
-    block: (File) -> Unit
+    block: (File?) -> Unit
   ) {
     withContext(Dispatchers.IO) {
       val outputFile = File(context.cacheDir, "${UUID.randomUUID()}.mp4")
@@ -53,12 +53,13 @@ class ViewCaptureController internal constructor(
       try {
         out = NIOUtils.writableFileChannel(outputFile.path)
         val encoder = AndroidSequenceEncoder(out, Rational.R(60, 5))
-        images.forEachIndexed { index, imageBitmap ->
+        images.forEachIndexed { _, imageBitmap ->
           encoder.encodeImage(imageBitmap)
         }
         encoder.finish()
         block(outputFile)
       } catch (e: Exception) {
+        block(null)
         Log.e("ericampire", e.localizedMessage)
       } finally {
         NIOUtils.closeQuietly(out)
