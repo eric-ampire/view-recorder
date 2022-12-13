@@ -13,7 +13,7 @@ android {
         targetSdk 33
         versionCode 1
         versionName "1.0"
-
+        multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary true
@@ -48,7 +48,8 @@ android {
 
 dependencies {
 
-    implementation 'com.github.eric-ampire:view-recorder:0.0.2'
+    implementation(project(":view-recorder"))
+    // implementation 'com.github.eric-ampire:view-recorder:-SNAPSHOT'
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
     implementation 'androidx.activity:activity-compose:1.6.1'
