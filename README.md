@@ -2,8 +2,7 @@
 
 ## 💡Introduction 
 
-In the previous View system, drawing Bitmap Image from `View` was very straightforward. But that's not the case with Jetpack Compose since it's different in many aspects from previous system. This library helps easy way to achieve the same results. 
-It's built upon the `ComposeView` and uses `View`'s APIs to draw the Bitmap image.
+todo ...
 
 ## 🚀 Implementation
 
@@ -11,11 +10,23 @@ You can check [/app](/app) directory which includes example application for demo
 
 ### Gradle setup
 
+In `build.gradle` of the project include the repository
+
+```groovy
+allprojects {
+    repositories {
+        ...
+        maven { url 'https://jitpack.io' }
+    }
+}
+```
+
 In `build.gradle` of app module, include this dependency
 
 ```gradle
+
 dependencies {
-    implementation "dev.shreyaspatil:capturable:1.0.3"
+    com.github.eric-ampire:view-recorder:<version>"
 }
 ```
 
