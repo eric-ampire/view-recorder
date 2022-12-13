@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 fun ViewRecorder(
   modifier: Modifier = Modifier,
   controller: ViewCaptureController,
-  onRecorded: (video: Uri, errors: List<Throwable>) -> Unit,
+  onRecorded: (video: Uri?, errors: List<Throwable>) -> Unit,
   content: @Composable () -> Unit
 ) {
 
@@ -37,9 +37,7 @@ fun ViewRecorder(
         images = getImages(images),
         block = { file ->
           val uri = file?.getUriFromFile(context)
-          if (uri != null) {
-            onRecorded(uri, errors)
-          }
+          onRecorded(uri, errors)
         }
       )
     }
