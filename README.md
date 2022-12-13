@@ -26,7 +26,7 @@ In `build.gradle` of app module, include this dependency
 ```gradle
 
 dependencies {
-    com.github.eric-ampire:view-recorder:<version>"
+    implementation "com.github.eric-ampire:view-recorder:<version>"
 }
 ```
 
