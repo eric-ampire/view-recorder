@@ -35,17 +35,14 @@ private suspend fun ImageBitmap.getResizedBitmapAsync(): Deferred<Bitmap> {
   val imageBitmap = this
   return coroutineScope {
     async(Dispatchers.IO) {
-      val width = imageBitmap.width
-      val height = imageBitmap.height
+      val compressedBitmap = compress(imageBitmap.asAndroidBitmap())
+      val width = compressedBitmap.width
+      val height = compressedBitmap.height
 
-      if (width.isEven() and height.isEven()) return@async imageBitmap.asAndroidBitmap()
+      if (width.isEven() and height.isEven()) return@async compressedBitmap
       val newWidth = width.getNextEven()
       val newHeight = height.getNextEven()
-
-      val rawBitmap = Bitmap.createScaledBitmap(
-        imageBitmap.asAndroidBitmap(), newWidth, newHeight, false
-      )
-      compress(rawBitmap)
+      Bitmap.createScaledBitmap(compressedBitmap, newWidth, newHeight, true)
     }
   }
 }
