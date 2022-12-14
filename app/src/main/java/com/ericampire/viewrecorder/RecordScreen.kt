@@ -29,6 +29,10 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.animateLottieCompositionAsState
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.ericampire.viewrecorder.ui.theme.ViewRecorderTheme
 import kotlin.math.roundToInt
 
@@ -57,21 +61,20 @@ fun RecordScreen(
       }
     )
 
-    Box(modifier = Modifier.fillMaxSize().padding(8.dp).weight(9f)) {
+    Box(modifier = Modifier
+      .fillMaxSize()
+      .padding(8.dp)
+      .weight(9f)) {
 
-      val itemModifier = Modifier
-        .offset { IntOffset(x = boxOffset.x.roundToInt(), y = boxOffset.y.roundToInt()) }
-        .background(Color.Red)
-        .size(100.dp)
-        .pointerInput(Unit) {
-          detectDragGestures { change, dragAmount ->
-            change.consume()
-            boxOffset += dragAmount
-          }
-        }
-
-
-      Box(modifier = itemModifier)
+      val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.loader))
+      val progress by animateLottieCompositionAsState(
+        composition = composition,
+        iterations = Int.MAX_VALUE
+      )
+      LottieAnimation(
+        composition = composition,
+        progress = { progress },
+      )
     }
   }
 }

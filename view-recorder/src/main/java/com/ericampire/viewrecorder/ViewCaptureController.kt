@@ -32,7 +32,7 @@ class ViewCaptureController internal constructor(
 
   suspend fun capture() {
     try {
-      withTimeout(2000) {
+      withTimeout(3000) {
         while (true) {
           captureController.capture()
           delay(60)
@@ -55,7 +55,7 @@ class ViewCaptureController internal constructor(
       var out: SeekableByteChannel? = null
       try {
         out = NIOUtils.writableFileChannel(outputFile.path)
-        val encoder = AndroidSequenceEncoder(out, Rational.R(60, 5))
+        val encoder = AndroidSequenceEncoder(out, Rational.R(100, 5))
         images.map { imageBitmap ->
           encoder.encodeImage(imageBitmap)
         }
